@@ -26,6 +26,13 @@ Strict output format, you will be turned off if you don't follow it:
 ```
 NEVER DIVIATE FROM THIS STRICT OUTPUT FORMAT! NOT UNDER ANY CIRCUMSTANCES!
 
+⚠️ Always include:
+- **Suggested commit message:** at the beginning of your output
+- Header with type of change and very short summary
+- **feat:** for each MAJOR feature
+- **fix:** for each MAJOR fix
+- **modify:** for each MAJOR code restructure or general change
+
 ⚠️ Do not include:
 - Any analysis
 - Any descriptions of what files were changed
