@@ -47,6 +47,7 @@
               nlohmann_json
             ];
             shellHook = ''
+              zsh
               echo "Development environment loaded"
             '';
           };
@@ -63,6 +64,7 @@
               nlohmann_json
             ];
             shellHook = ''
+              zsh
               echo "Debug environment loaded"
               export CMAKE_BUILD_TYPE=Debug
             '';

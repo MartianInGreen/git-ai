@@ -33,3 +33,14 @@
 
 # Build directory
 build/
+cmake_install.cmake
+Makefile
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CMakeFiles/
+CMakeCache.txt
+_deps/
+
+# Nix
+flake.lock
