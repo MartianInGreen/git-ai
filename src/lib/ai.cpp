@@ -1,19 +1,19 @@
 #include "ai.h"
 #include <openai/openai.hpp>
 
-std::string get_ai_response(const std::string& prompt, const std::string& model, const std::string& apiKey, const std::string& apiBase, const std::string& gitDiff) {
-    openai::start(apiKey, "", true, apiBase);
+std::string get_ai_response(const std::string& promptRef, const std::string& modelRef, const std::string& apiKeyRef, const std::string& apiBaseRef, const std::string& gitDiffRef) {
+    openai::start(apiKeyRef, "", true, apiBaseRef);
 
     nlohmann::json chat_json = {
-        {"model", model},
+        {"model", modelRef},
         {"messages", {
             {
                 {"role", "user"},
-                {"content", prompt}
+                {"content", promptRef}
             },
             {
                 {"role", "user"},
-                {"content", "Write the git commit message. Here is the git diff: \n" + gitDiff}
+                {"content", "Write the git commit message. Here is the git diff: \n" + gitDiffRef}
             }
         }},
         {"max_tokens", 8192},

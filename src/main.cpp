@@ -5,17 +5,29 @@
 #include "ai.h"
 #include "main.h"
 
-const char* inUseModel;
-char* extraInstructions;
-const char* apiKey;
-const char* apiBase;
+// Global variables
 
-void setInUseModel(const char* model);
+const char* inUseModelPtr;
+char* extraInstructionsPtr;
+const char* apiKeyPtr;
+const char* apiBasePtr;
+
+int programMode = 0;
+
+// Function prototypes
+
+int runGitDiffMode(std::string extraInstructionsRef); // programMode = 0
+int runFeedbackMode(std::string extraInstructionsRef); // programMode = 1
+
+void setinUseModelPtr(const char* model);
+void setapiKeyPtr(const char* keyPtr);
+void setapiBasePtr(const char* basePtr);
+
 std::string get_git_diff();
 std::string extract_git_commit_message(const std::string& response);
-void setApiKey(const char* key);
-void setApiBase(const char* base);
-std::string escape_shell_chars(const std::string& str);
+std::string escape_shell_chars(const std::string& strRef);
+
+// Main function
 
 int main(int argc, char* argv[]) {
     #ifdef _DEBUG
@@ -41,60 +53,84 @@ int main(int argc, char* argv[]) {
         if (strcmp(argv[i], "-m") == 0 || strcmp(argv[i], "--model") == 0) {
             if (i + 1 < argc) {
                 // If an argument is passed, use it as the model
-                setInUseModel(argv[++i]);
+                setinUseModelPtr(argv[++i]);
             }
         } else {
             // If no argument is passed, use the default model
-            setInUseModel(DefaultModel);
+            setinUseModelPtr(DefaultModel);
         }
 
         // If the argument is "--key", use the passed key
         if (strcmp(argv[i], "--key") == 0) {
             if (i + 1 < argc) {
-                setApiKey(argv[++i]);
+                setapiKeyPtr(argv[++i]);
             } else {
                 // Use the API key from the environment variable
-                setApiKey(getenv("OPENAI_API_KEY"));
+                setapiKeyPtr(getenv("OPENAI_API_KEY"));
             }
         }
         
         // If the argument is "--base", use the passed base
         if (strcmp(argv[i], "--base") == 0) {
             if (i + 1 < argc) {
-                setApiBase(argv[++i]);
+                setapiBasePtr(argv[++i]);
             } else {
                 // Use the API base from the environment variable
-                setApiBase(API_BASE_URL);
+                setapiBasePtr(API_BASE_URL);
             }
+        }
+
+        // Handle feedback mode
+        if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--feedback") == 0) {
+            programMode = 1;
         }
 
         // See if user has input extra instructions
         if (strcmp(argv[i], "-t") == 0 || strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--instructions") == 0) {
             if (i + 1 < argc) {
-                extraInstructions = argv[++i];
+                extraInstructionsPtr = argv[++i];
             }
 
             #ifdef _DEBUG
-            std::cout << "Extra instructions: " << extraInstructions << "\n";
+            std::cout << "Extra instructions: " << extraInstructionsPtr << "\n";
             #endif
+        } else {
+            extraInstructionsPtr = nullptr;
         }
     }
 
+    int returnValue = 0;
+
+    if (programMode == 0) {
+        std::string extraInstructions = extraInstructionsPtr ? extraInstructionsPtr : "";
+        returnValue = runGitDiffMode(extraInstructions);
+    } else if (programMode == 1) {
+        std::string extraInstructions = extraInstructionsPtr ? extraInstructionsPtr : "";
+        returnValue = runFeedbackMode(extraInstructions);
+    }
+
+    return returnValue;
+}
+
+// Program modes
+
+int runGitDiffMode(std::string extraInstructionsRef) {
+    // Get the git diff
     // Assemble the system prompt
     std::string systemPrompt = SystemPrompt;
 
     // Replace the {user_instructions} placeholder with the extra instructions if it exists, otherwise just remove it
-    if (extraInstructions != nullptr) {
-        systemPrompt.replace(systemPrompt.find("{user_instructions}"), strlen("{user_instructions}"), extraInstructions);
-    } else {
-        systemPrompt.erase(systemPrompt.find("{user_instructions}"), strlen("{user_instructions}"));
+    size_t placeholderPos = systemPrompt.find("{user_instructions}");
+    if (placeholderPos != std::string::npos) {
+        if (!extraInstructionsRef.empty()) {
+            systemPrompt.replace(placeholderPos, strlen("{user_instructions}"), extraInstructionsRef);
+        } else {
+            systemPrompt.erase(placeholderPos, strlen("{user_instructions}"));
+        }
     }
 
     // Get the git diff
     std::string gitDiff = get_git_diff();
-
-    // Replace the {git_diff} placeholder with the git diff if it exists, otherwise just remove it
-    //systemPrompt.replace(systemPrompt.find("{git_diff}"), strlen("{git_diff}"), gitDiff);
 
     // Print out the git diff to the user
     std::string gitDiffUser = "git diff --cached --color --compact-summary";
@@ -109,10 +145,10 @@ int main(int argc, char* argv[]) {
     #endif
 
     std::string response = get_ai_response(
-        extraInstructions ? extraInstructions : "",
-        inUseModel ? inUseModel : DefaultModel,
-        apiKey ? apiKey : "",
-        apiBase ? apiBase : "",
+        extraInstructionsRef,
+        inUseModelPtr ? inUseModelPtr : DefaultModel,
+        apiKeyPtr ? apiKeyPtr : "",
+        apiBasePtr ? apiBasePtr : "",
         gitDiff
     );
     
@@ -161,9 +197,26 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void setInUseModel(const char* model) {
-    inUseModel = model;
+int runFeedbackMode(std::string extraInstructionsRef) {
+    // Get the git diff
+    std::string gitDiff = get_git_diff();
+    
 }
+
+// Setter functions
+void setinUseModelPtr(const char* model) {
+    inUseModelPtr = model;
+}
+
+void setapiKeyPtr(const char* keyPtr) {
+    apiKeyPtr = keyPtr;
+}
+
+void setapiBasePtr(const char* basePtr) {
+    apiBasePtr = basePtr;
+}
+
+// Helper functions
 
 std::string get_git_diff() {
     std::string diff;
@@ -228,17 +281,9 @@ std::string extract_git_commit_message(const std::string& response) {
     }
 }
 
-void setApiKey(const char* key) {
-    apiKey = key;
-}
-
-void setApiBase(const char* base) {
-    apiBase = base;
-}
-
-std::string escape_shell_chars(const std::string& str) {
+std::string escape_shell_chars(const std::string& strRef) {
     std::string escaped;
-    for (char c : str) {
+    for (char c : strRef) {
         if (c == '"' || c == '\\' || c == '$' || c == '`' || c == '!' || c == '&' || c == '|' || c == ';' || c == '(' || c == ')') {
             escaped += '\\';
         }
