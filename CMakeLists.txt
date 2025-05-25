@@ -1,22 +1,14 @@
 cmake_minimum_required(VERSION 3.14)
 project(gia)
-set(CMAKE_CXX_STANDARD 17)
-
-include(FetchContent)
-
-# Fetch openai-cpp
-FetchContent_Declare(
-  openai_cpp
-  GIT_REPOSITORY https://github.com/olrea/openai-cpp.git
-  GIT_TAG main
-)
-FetchContent_MakeAvailable(openai_cpp)
+set(CMAKE_CXX_STANDARD 20)
 
 # Find libcurl from system
 find_package(CURL REQUIRED)
 
 # Find nlohmann/json from system
 find_package(nlohmann_json REQUIRED)
+
+add_subdirectory(lib/openai-cpp)
 
 add_executable(gia src/main.cpp)
 

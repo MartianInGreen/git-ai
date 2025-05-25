@@ -25,6 +25,8 @@
               nlohmann_json
             ];
             buildPhase = ''
+              mkdir -p lib
+              git clone https://github.com/olrea/openai-cpp.git lib/openai-cpp
               cmake -B build
               cmake --build build
             '';
@@ -47,8 +49,9 @@
               nlohmann_json
             ];
             shellHook = ''
+              mkdir -p lib
+              git clone https://github.com/olrea/openai-cpp.git lib/openai-cpp
               zsh
-              echo "Development environment loaded"
             '';
           };
 

@@ -44,3 +44,6 @@ _deps/
 
 # Nix
 flake.lock
+
+# Lib
+lib/openai-cpp/
