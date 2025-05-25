@@ -1,7 +1,6 @@
-git-ai (0.1.0) unstable; urgency=medium
+git-ai (0.1.1) unstable; urgency=medium
 
   Initial release
-  * Use 'gia' in a git repository to automatically generate git messages
-  * Use 'gia --help' to learn more
+  * Add feedback mode
 
- -- MartianInGreen <github@rennersh.de>  Sun, 25 May 2025 15:35:36 +0200
+ -- MartianInGreen <github@rennersh.de>  Sun, 25 May 2025 18:16:00 +0200

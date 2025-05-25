@@ -8,11 +8,11 @@
 
 stdenv.mkDerivation rec {
   pname = "git-ai";
-  version = "0.1.0";
+  version = "0.1.1";
 
   src = fetchurl {
     url = "https://github.com/MartianInGreen/git-ai/releases/download/v${version}/git-ai_${version}_amd64.deb";
-    sha256 = "1smk7ks7vwdfihy46xnjhp6qbcfqkl8hab4cakqj1isfcr5ja20s";
+    sha256 = "0vld0z0x8p5kajm6f4svk76bim172pqfmakyjahk27bmadvcaxdw";
   };
 
   nativeBuildInputs = [
