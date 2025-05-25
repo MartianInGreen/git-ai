@@ -13,7 +13,7 @@ std::string get_ai_response(const std::string& prompt, const std::string& model,
             },
             {
                 {"role", "user"},
-                {"content", "Git diff:" + gitDiff}
+                {"content", "Write the git commit message. Here is the git diff: \n" + gitDiff}
             }
         }},
         {"max_tokens", 8192},

@@ -92,6 +92,17 @@ int main(int argc, char* argv[]) {
     // Get the git diff
     std::string gitDiff = get_git_diff();
 
+    // Replace the {git_diff} placeholder with the git diff if it exists, otherwise just remove it
+    //systemPrompt.replace(systemPrompt.find("{git_diff}"), strlen("{git_diff}"), gitDiff);
+
+    // Print out the git diff to the user
+    std::string gitDiffUser = "git diff --cached --color --compact-summary";
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "Git diff:" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    system(gitDiffUser.c_str());
+    std::cout << "--------------------------------" << std::endl;
+
     #ifdef _DEBUG
     std::cout << "System prompt: " << systemPrompt << std::endl;
     #endif
@@ -131,6 +142,19 @@ int main(int argc, char* argv[]) {
         // Run the git commit command
         std::string commitCommand = "git commit -m \"" + gitCommitMessage + "\"";
         system(commitCommand.c_str());
+    } else {
+        std::cout << "Aborting commit..." << std::endl;
+        return 0;
+    }
+
+    // Ask user if they want to push the commit
+    std::cout << "Do you want to push the commit? (y/n): ";
+    char push;
+    std::cin >> push;
+    if (push == 'y') {
+        std::cout << "Pushing commit..." << std::endl;
+        std::string pushCommand = "git push";
+        system(pushCommand.c_str());
     }
 
     return 0;
@@ -158,19 +182,38 @@ std::string get_git_diff() {
 
 std::string extract_git_commit_message(const std::string& response) {
     const std::string header = "**Suggested commit message:**";
+    const std::string codeBlockDelimiter = "```";
     size_t pos = response.find(header);
-    
+
     if (pos == std::string::npos) {
         return "Error: No commit message found in the response";
     }
-    
+
     // Skip the header and any whitespace after it
     pos += header.length();
     while (pos < response.length() && std::isspace(response[pos])) {
         pos++;
     }
-    
-    return response.substr(pos);
+
+    // Remove all occurrences of the code block delimiter from the response
+    std::string cleanedResponse = response;
+    size_t delimPos;
+    while ((delimPos = cleanedResponse.find(codeBlockDelimiter)) != std::string::npos) {
+        cleanedResponse.erase(delimPos, codeBlockDelimiter.length());
+    }
+
+    // Adjust position for cleanedResponse
+    size_t cleanedPos = cleanedResponse.find(header);
+    if (cleanedPos != std::string::npos) {
+        cleanedPos += header.length();
+        while (cleanedPos < cleanedResponse.length() && std::isspace(cleanedResponse[cleanedPos])) {
+            cleanedPos++;
+        }
+        return cleanedResponse.substr(cleanedPos);
+    } else {
+        // Fallback: return the original substring after header, but with delimiters removed
+        return cleanedResponse.substr(pos);
+    }
 }
 
 void setApiKey(const char* key) {
