@@ -24,7 +24,7 @@ stdenv.mkDerivation rec {
     owner  = "MartianInGreen";
     repo   = "git-ai";
     rev    = "main";
-    sha256 = "19yjmb3s4wibpzgx7df9gm0ass8qr1n3pvs9kk4c88j6yvah7h6v";
+    sha256 = "{{sha}}";
   };
 
   nativeBuildInputs = [ cmake pkg-config ];

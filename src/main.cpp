@@ -15,6 +15,7 @@ std::string get_git_diff();
 std::string extract_git_commit_message(const std::string& response);
 void setApiKey(const char* key);
 void setApiBase(const char* base);
+std::string escape_shell_chars(const std::string& str);
 
 int main(int argc, char* argv[]) {
     #ifdef _DEBUG
@@ -139,8 +140,8 @@ int main(int argc, char* argv[]) {
     std::cin >> commit;
     if (commit == 'y') {
         std::cout << "Committing message..." << std::endl;
-        // Run the git commit command
-        std::string commitCommand = "git commit -m \"" + gitCommitMessage + "\"";
+        // Run the git commit command with escaped message
+        std::string commitCommand = "git commit -m \"" + escape_shell_chars(gitCommitMessage) + "\"";
         system(commitCommand.c_str());
     } else {
         std::cout << "Aborting commit..." << std::endl;
@@ -233,4 +234,15 @@ void setApiKey(const char* key) {
 
 void setApiBase(const char* base) {
     apiBase = base;
+}
+
+std::string escape_shell_chars(const std::string& str) {
+    std::string escaped;
+    for (char c : str) {
+        if (c == '"' || c == '\\' || c == '$' || c == '`' || c == '!' || c == '&' || c == '|' || c == ';' || c == '(' || c == ')') {
+            escaped += '\\';
+        }
+        escaped += c;
+    }
+    return escaped;
 }

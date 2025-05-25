@@ -41,6 +41,7 @@ Makefile
 CMakeFiles/
 CMakeCache.txt
 _deps/
+build_output/
 
 # Nix
 flake.lock

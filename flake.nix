@@ -41,8 +41,10 @@
           default = pkgs.mkShell {
             nativeBuildInputs = with pkgs; [
               cmake
+              gcc
               pkg-config
-              gdb
+              nlohmann_json
+              curl
             ];
             buildInputs = with pkgs; [
               curl

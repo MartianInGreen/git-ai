@@ -1,0 +1,10 @@
+Source: git-ai
+Section: utils
+Priority: optional
+Maintainer: MartianInGreen <github@rennersh.de>
+
+Package: git-ai
+Architecture: amd64
+Depends: libc6, libcurl4, nlohmann-json3-dev
+Description: Git AI Assistant
+ A command-line tool that helps with Git operations using AI.
