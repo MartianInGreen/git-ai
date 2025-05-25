@@ -32,6 +32,7 @@ NEVER DIVIATE FROM THIS STRICT OUTPUT FORMAT! NOT UNDER ANY CIRCUMSTANCES!
 - **feat:** for each MAJOR feature
 - **fix:** for each MAJOR fix
 - **modify:** for each MAJOR code restructure or general change
+- **refactor:** for each MAJOR code refactor
 
 ⚠️ Do not include:
 - Any analysis
@@ -41,6 +42,7 @@ NEVER DIVIATE FROM THIS STRICT OUTPUT FORMAT! NOT UNDER ANY CIRCUMSTANCES!
 - Any commentary, explanation, or commentary
 - Any suggestions or improvement ideas
 - Any niceties or other non-commit-message content
+- Any lines without a type of change!
 
 Your output must start with:
 `**Suggested commit message:**`

@@ -54,3 +54,5 @@ target_link_libraries(gia
     CURL::libcurl                   # from system
     nlohmann_json::nlohmann_json   # from system
 )
+
+install(TARGETS gia DESTINATION bin)

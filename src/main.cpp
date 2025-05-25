@@ -185,14 +185,25 @@ std::string extract_git_commit_message(const std::string& response) {
     const std::string codeBlockDelimiter = "```";
     size_t pos = response.find(header);
 
+    // If header not found, try to find code block delimiter
     if (pos == std::string::npos) {
-        return "Error: No commit message found in the response";
-    }
-
-    // Skip the header and any whitespace after it
-    pos += header.length();
-    while (pos < response.length() && std::isspace(response[pos])) {
-        pos++;
+        pos = response.find(codeBlockDelimiter);
+        if (pos != std::string::npos) {
+            // Skip the delimiter and any whitespace
+            pos += codeBlockDelimiter.length();
+            while (pos < response.length() && std::isspace(response[pos])) {
+                pos++;
+            }
+        } else {
+            // If neither header nor code block found, use the entire message
+            return response;
+        }
+    } else {
+        // Skip the header and any whitespace after it
+        pos += header.length();
+        while (pos < response.length() && std::isspace(response[pos])) {
+            pos++;
+        }
     }
 
     // Remove all occurrences of the code block delimiter from the response
