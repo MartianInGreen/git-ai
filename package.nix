@@ -1,54 +1,38 @@
 { lib
 , stdenv
-, cmake
-, pkg-config
+, fetchurl
+, dpkg
 , curl
 , nlohmann_json
-, fetchFromGitHub
 }:
 
-let
-  openai-cpp = fetchFromGitHub {
-    owner  = "olrea";
-    repo   = "openai-cpp";
-    rev    = "9554a4d86d7650bb3b46db772dbacd5f3e054b8c";
-    sha256 = "014avhcn5fnglc7fd8vxmf07yb45h54nrg245siyk6gckngwgcxp";
-  };
-in
-
 stdenv.mkDerivation rec {
-  pname    = "gia";
-  version  = "0.1.0";
+  pname = "git-ai";
+  version = "0.1.0";
 
-  src = fetchFromGitHub {
-    owner  = "MartianInGreen";
-    repo   = "git-ai";
-    rev    = "main";
-    sha256 = "{{sha}}";
+  src = fetchurl {
+    url = "https://github.com/MartianInGreen/git-ai/releases/download/v${version}/git-ai_${version}_amd64.deb";
+    sha256 = "1smk7ks7vwdfihy46xnjhp6qbcfqkl8hab4cakqj1isfcr5ja20s";
   };
 
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs       = [ curl nlohmann_json openai-cpp ];
+  nativeBuildInputs = [
+    dpkg
+  ];
 
-  # copy headers into your vendored path
-  preConfigure = ''
-    mkdir -p lib/openai-cpp/include/openai-cpp
-    cp -r ${openai-cpp}/include/* lib/openai-cpp/include/
-  '';
+  buildInputs = [
+    curl
+    nlohmann_json
+  ];
 
-  # override the default configure/build/install phases:
-  configurePhase = ''
-    cmake -S . -B build \
-      -DCMAKE_BUILD_TYPE=Release \
-      -DCMAKE_INSTALL_PREFIX=$out
-  '';
-
-  buildPhase = ''
-    cmake --build build -- -j${stdenv.jobCount}
+  unpackPhase = ''
+    mkdir -p $out
+    dpkg-deb -x $src $out
   '';
 
   installPhase = ''
-    cmake --install build
+    mkdir -p $out/bin
+    cp $out/usr/bin/gia $out/bin/
+    chmod +x $out/bin/gia
   '';
 
   meta = with lib; {
@@ -56,5 +40,6 @@ stdenv.mkDerivation rec {
     homepage    = "https://github.com/MartianInGreen/git-ai";
     license     = licenses.mit;
     platforms   = platforms.unix;
+    maintainers = with maintainers; [ MartianInGreen ];
   };
 }
