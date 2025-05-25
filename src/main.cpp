@@ -26,6 +26,7 @@ void setapiBasePtr(const char* basePtr);
 std::string get_git_diff();
 std::string extract_git_commit_message(const std::string& response);
 std::string escape_shell_chars(const std::string& strRef);
+std::string replace_placeholder(const std::string& prompt, const std::string& instructions);
 
 // Main function
 
@@ -117,17 +118,7 @@ int main(int argc, char* argv[]) {
 int runGitDiffMode(std::string extraInstructionsRef) {
     // Get the git diff
     // Assemble the system prompt
-    std::string systemPrompt = SystemPrompt;
-
-    // Replace the {user_instructions} placeholder with the extra instructions if it exists, otherwise just remove it
-    size_t placeholderPos = systemPrompt.find("{user_instructions}");
-    if (placeholderPos != std::string::npos) {
-        if (!extraInstructionsRef.empty()) {
-            systemPrompt.replace(placeholderPos, strlen("{user_instructions}"), extraInstructionsRef);
-        } else {
-            systemPrompt.erase(placeholderPos, strlen("{user_instructions}"));
-        }
-    }
+    std::string systemPrompt = replace_placeholder(SystemPrompt, extraInstructionsRef);
 
     // Get the git diff
     std::string gitDiff = get_git_diff();
@@ -145,7 +136,7 @@ int runGitDiffMode(std::string extraInstructionsRef) {
     #endif
 
     std::string response = get_ai_response(
-        extraInstructionsRef,
+        systemPrompt,
         inUseModelPtr ? inUseModelPtr : DefaultModel,
         apiKeyPtr ? apiKeyPtr : "",
         apiBasePtr ? apiBasePtr : "",
@@ -201,6 +192,29 @@ int runFeedbackMode(std::string extraInstructionsRef) {
     // Get the git diff
     std::string gitDiff = get_git_diff();
     
+    // Assemble the feedback prompt
+    std::string feedbackPrompt = replace_placeholder(FeedbackPrompt, extraInstructionsRef);
+
+    #ifdef _DEBUG
+    std::cout << "Feedback prompt: " << feedbackPrompt << std::endl;
+    #endif
+
+    std::string response = get_ai_response(
+        feedbackPrompt,
+        inUseModelPtr ? inUseModelPtr : DefaultModel,
+        apiKeyPtr ? apiKeyPtr : "",
+        apiBasePtr ? apiBasePtr : "",
+        gitDiff
+    );
+
+    // Print the feedback to the console
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << "Code Review Feedback:" << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+    std::cout << response << std::endl;
+    std::cout << "--------------------------------" << std::endl;
+
+    return 0;
 }
 
 // Setter functions
@@ -217,6 +231,19 @@ void setapiBasePtr(const char* basePtr) {
 }
 
 // Helper functions
+
+std::string replace_placeholder(const std::string& prompt, const std::string& instructions) {
+    std::string result = prompt;
+    size_t placeholderPos = result.find("{user_instructions}");
+    if (placeholderPos != std::string::npos) {
+        if (!instructions.empty()) {
+            result.replace(placeholderPos, strlen("{user_instructions}"), instructions);
+        } else {
+            result.erase(placeholderPos, strlen("{user_instructions}"));
+        }
+    }
+    return result;
+}
 
 std::string get_git_diff() {
     std::string diff;
