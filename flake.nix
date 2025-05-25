@@ -26,7 +26,7 @@
             ];
             buildPhase = ''
               mkdir -p lib
-              git clone https://github.com/olrea/openai-cpp.git lib/openai-cpp
+              [ ! -d "lib/openai-cpp" ] && git clone https://github.com/olrea/openai-cpp.git lib/openai-cpp
               cmake -B build
               cmake --build build
             '';
@@ -49,9 +49,17 @@
               nlohmann_json
             ];
             shellHook = ''
+              # Load environment variables from .env file if it exists
+              if [ -f .env ]; then
+                echo "Loading environment variables from .env file..."
+                export $(cat .env | grep -v '^#' | xargs)
+              fi
+
               mkdir -p lib
-              git clone https://github.com/olrea/openai-cpp.git lib/openai-cpp
-              zsh
+              [ ! -d "lib/openai-cpp" ] && git clone https://github.com/olrea/openai-cpp.git lib/openai-cpp
+              chmod +x scripts/run.sh
+
+              exec zsh
             '';
           };
 
@@ -67,9 +75,15 @@
               nlohmann_json
             ];
             shellHook = ''
-              zsh
-              echo "Debug environment loaded"
+              # Load environment variables from .env file if it exists
+              if [ -f .env ]; then
+                echo "Loading environment variables from .env file..."
+                export $(cat .env | grep -v '^#' | xargs)
+              fi
+
+              echo "⚙️  Debug environment loaded"
               export CMAKE_BUILD_TYPE=Debug
+              zsh
             '';
           };
         };

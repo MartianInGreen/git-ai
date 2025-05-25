@@ -44,6 +44,11 @@ _deps/
 
 # Nix
 flake.lock
+.env
 
 # Lib
 lib/openai-cpp/
+
+# Misc
+gia
+.vscode/
